@@ -10,16 +10,20 @@
 
 @implementation FCProgressView{
     CGFloat prevValue;
+    CGFloat maxValue;
+    CGFloat minValue;
+    CGFloat angle;
 }
 
 - (id)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
     if (self) {
         //set values & limits
-        _minValue = 0.0;
-        _maxValue = 1.0;
+        minValue = 0.0;
+        maxValue = 1.0;
         _animated = NO;
-        _clockwise = NO;
+        _clockwise = YES; //for timer/stoper use should stay YES
+        _countdown = NO;
         
         _progressTintColor = self.tintColor;
         _trackTintColor = [UIColor lightGrayColor];
@@ -29,10 +33,10 @@
         _trackLayer.backgroundColor = [UIColor clearColor].CGColor;
         _trackLayer.strokeColor = _trackTintColor.CGColor;
         _minAngle = -M_PI / 2.0;
-        _angle = _minAngle;
+        angle = _minAngle;
         _maxAngle = M_PI * 3 / 2.0;
         _lineWidth = 5.0;
-        _value = 0.5;
+        _progress = 0.5;
         
         //set progress
         _progressLayer = [CAShapeLayer layer];
@@ -59,6 +63,8 @@
 #pragma mark - Rendering
 
 -(void)updateProgress{
+    //check if counting down
+    
     //set track
     CGPoint center = CGPointMake(CGRectGetMidX(self.trackLayer.bounds), CGRectGetMidY(self.trackLayer.bounds));
     CGFloat offset = self.lineWidth/2.f;
@@ -81,7 +87,7 @@
         CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
         animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
         animation.fromValue = [NSNumber numberWithFloat:prevValue];
-        animation.toValue = [NSNumber numberWithFloat:_value];
+        animation.toValue = [NSNumber numberWithFloat:_progress];
         animation.removedOnCompletion = NO;
         animation.fillMode = kCAFillModeForwards;
         [self.progressLayer addAnimation:animation forKey:@"strokeEndAnimation"];
@@ -90,12 +96,12 @@
         UIBezierPath *progressRing = [UIBezierPath bezierPathWithArcCenter:center
                                                                     radius:radius
                                                                 startAngle:self.minAngle
-                                                                  endAngle:self.angle
+                                                                  endAngle:angle
                                                                  clockwise:self.clockwise];
         self.progressLayer.path = progressRing.CGPath;
     }
     //set status
-    self.status.text = [NSString stringWithFormat:@"%.0f%%", _value*100];
+    self.status.text = [NSString stringWithFormat:@"%.0f%%", _progress*100];
 }
 
 - (void)updateWithBounds:(CGRect)bounds{
@@ -119,11 +125,14 @@
 
 -(void)setValue:(float)value animated:(BOOL)animated{
     _animated = animated;
-    prevValue = _value;
-    _value = MIN(self.maxValue, MAX(self.minValue, value));
+    prevValue = _progress;
+    _progress = MIN(maxValue, MAX(minValue, value));
+    if (self.countdown) {
+        _progress = 1 - _progress;
+    }
     int sign = self.clockwise ? 1 : -1;
-    self.angle = sign * 2 * M_PI * value + self.minAngle;
-    NSLog(@"angle = %.2f value = %.2f prev = %.2f", _angle, _value, prevValue);
+    angle = sign * 2 * M_PI * value + self.minAngle;
+    //NSLog(@"angle = %.2f value = %.2f prev = %.2f", _angle, _progress, prevValue);
     [self updateProgress];
 }
 
@@ -144,7 +153,7 @@
 
 #pragma mark - Property overrides
 
--(void)setValue:(CGFloat)value{
+-(void)setProgress:(CGFloat)value{
     [self setValue:value animated:NO];
 }
 

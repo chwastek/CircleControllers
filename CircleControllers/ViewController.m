@@ -10,7 +10,7 @@
 
 
 @interface ViewController (){
-    FCProgressView *_slider;
+    FCProgressView *_myProgressView;
 }
 
 @end
@@ -19,10 +19,10 @@
 
 - (void)viewDidLoad{
     [super viewDidLoad];
-	_slider = [[FCProgressView alloc] initWithFrame:self.sliderPlaceholder.bounds];
-    [self.sliderPlaceholder addSubview:_slider];
+	_myProgressView = [[FCProgressView alloc] initWithFrame:self.sliderPlaceholder.bounds];
+    [self.sliderPlaceholder addSubview:_myProgressView];
     self.progress = 0.0f;
-    _slider.value = self.progress;
+    _myProgressView.progress = self.progress;
     self.progressView.progress = self.progress;
     
     self.timer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(updateProgress) userInfo:nil repeats:YES];
@@ -34,7 +34,7 @@
         [self.timer invalidate];
         self.timer = nil;
     }else{
-        [_slider setValue:self.progress animated:YES];
+        [_myProgressView setValue:self.progress animated:YES];
         [self.progressView setProgress:self.progress animated:YES];
     }
 }
