@@ -77,38 +77,8 @@
                                                              clockwise:self.clockwise];
     self.progressLayer.path = progressRing.CGPath;
     self.progressLayer.lineWidth = self.lineWidth;
-//    if (self.clockwise) {
-//        self.progressLayer.strokeColor = self.progressTintColor.CGColor;
-//        self.trackLayer.strokeColor = self.trackTintColor.CGColor;
-//    }else{
-//        self.progressLayer.strokeColor = self.trackTintColor.CGColor;
-//        self.trackLayer.strokeColor = self.progressTintColor.CGColor;
-//    }
     
-//    if (self.animated) {
-//        UIBezierPath *progressRing = [UIBezierPath bezierPathWithArcCenter:center
-//                                                                    radius:radius
-//                                                                startAngle:self.minAngle
-//                                                                  endAngle:self.maxAngle
-//                                                                 clockwise:self.clockwise];
-//        CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
-//        animation.fromValue = [NSNumber numberWithFloat:prevValue];
-//        animation.toValue = [NSNumber numberWithFloat:_value];
-//        animation.removedOnCompletion = YES;
-//        animation.fillMode = kCAFillModeForwards;
-//        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
-//        [self.progressLayer addAnimation:animation forKey:@"strokeEndAnimation"];
-//        self.progressLayer.path = progressRing.CGPath;
-//    }else{
-//        UIBezierPath *progressRing = [UIBezierPath bezierPathWithArcCenter:center
-//                                                            radius:radius
-//                                                        startAngle:self.minAngle
-//                                                          endAngle:self.angle
-//                                                         clockwise:self.clockwise];
-//        self.progressLayer.path = progressRing.CGPath;
-//    }
-    
-    self.status.text = [NSString stringWithFormat:@"%.2f", _value*100];
+    self.status.text = [NSString stringWithFormat:@"%.0f%%", _value*100];
 }
 
 - (void)updateWithBounds:(CGRect)bounds{
