@@ -19,7 +19,7 @@
         _minValue = 0.0;
         _maxValue = 1.0;
         _animated = NO;
-        _clockwise = YES;
+        _clockwise = NO;
         
         _progressTintColor = self.tintColor;
         _trackTintColor = [UIColor lightGrayColor];
@@ -59,6 +59,7 @@
 #pragma mark - Rendering
 
 -(void)updateProgress{
+    //set track
     CGPoint center = CGPointMake(CGRectGetMidX(self.trackLayer.bounds), CGRectGetMidY(self.trackLayer.bounds));
     CGFloat offset = self.lineWidth/2.f;
     CGFloat radius = MIN(CGRectGetHeight(self.trackLayer.bounds)/2, CGRectGetWidth(self.trackLayer.bounds)/2) - offset;
@@ -69,15 +70,31 @@
                                                      clockwise:YES];
     self.trackLayer.lineWidth = self.lineWidth;
     self.trackLayer.path = path.CGPath;
-    
-    UIBezierPath *progressRing = [UIBezierPath bezierPathWithArcCenter:center
-                                                                radius:radius
-                                                            startAngle:self.minAngle
-                                                              endAngle:self.angle
-                                                             clockwise:self.clockwise];
-    self.progressLayer.path = progressRing.CGPath;
+    //set progress
     self.progressLayer.lineWidth = self.lineWidth;
-    
+    if (self.animated) {
+        UIBezierPath *progressRing = [UIBezierPath bezierPathWithArcCenter:center
+                                                                    radius:radius
+                                                                startAngle:self.minAngle
+                                                                  endAngle:self.maxAngle
+                                                                 clockwise:self.clockwise];
+        CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
+        animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+        animation.fromValue = [NSNumber numberWithFloat:prevValue];
+        animation.toValue = [NSNumber numberWithFloat:_value];
+        animation.removedOnCompletion = NO;
+        animation.fillMode = kCAFillModeForwards;
+        [self.progressLayer addAnimation:animation forKey:@"strokeEndAnimation"];
+        self.progressLayer.path = progressRing.CGPath;
+    }else{
+        UIBezierPath *progressRing = [UIBezierPath bezierPathWithArcCenter:center
+                                                                    radius:radius
+                                                                startAngle:self.minAngle
+                                                                  endAngle:self.angle
+                                                                 clockwise:self.clockwise];
+        self.progressLayer.path = progressRing.CGPath;
+    }
+    //set status
     self.status.text = [NSString stringWithFormat:@"%.0f%%", _value*100];
 }
 
@@ -104,7 +121,8 @@
     _animated = animated;
     prevValue = _value;
     _value = MIN(self.maxValue, MAX(self.minValue, value));
-    self.angle = 2 * M_PI * value + self.minAngle;
+    int sign = self.clockwise ? 1 : -1;
+    self.angle = sign * 2 * M_PI * value + self.minAngle;
     NSLog(@"angle = %.2f value = %.2f prev = %.2f", _angle, _value, prevValue);
     [self updateProgress];
 }
