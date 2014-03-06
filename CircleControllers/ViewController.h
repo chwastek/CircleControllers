@@ -7,7 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "FCProgressView.h"
 
 @interface ViewController : UIViewController
+@property (strong, nonatomic) IBOutlet UIView *sliderPlaceholder;
+@property (strong, nonatomic) IBOutlet UIProgressView *progressView;
+@property (assign, nonatomic) CGFloat progress;
+@property (strong, nonatomic) NSTimer *timer;
 
 @end
